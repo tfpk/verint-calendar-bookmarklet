@@ -210,6 +210,9 @@ function displayData(vcb_data) {
 
      let li = document.createElement('li');
      li.innerHTML = `<b>${fmtTime(item.start)} to ${fmtTime(item.end)}</b>: ${item.name} (${item.role})`;
+     if (item.role === 'ISS') {
+        li.style.backgroundColor = 'darkred';
+     }
      day_columns[date_string].appendChild(li);
 
    });

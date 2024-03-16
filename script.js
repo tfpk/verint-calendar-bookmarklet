@@ -4,11 +4,13 @@ function getCookie(name) {
   if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-async function getCalendar() {
+async function doWebRequest(body) {
   let login = getCookie("csrfp_login");
   let token = getCookie("csrfp_token");
 
-  let cal = await fetch(`${URL}/api/wfm/main/v2/calendar-filter`, {
+  let api = body['data']['type'];
+
+  let request = await fetch(`${URL}/api/wfm/main/${api}`, {
     "credentials": "include",
     "headers": {
         "Accept": "application/json, text/plain, */*",
@@ -24,54 +26,179 @@ async function getCalendar() {
         "Pragma": "no-cache",
         "Cache-Control": "no-cache"
     },
+    "body": JSON.stringify(body),
     "referrer": `${URL}/wfo/ui/`,
-    "body": JSON.stringify({
-      "data": {
-        "attributes": {
-          "calendarFilterCriteria": {
-            "extendedResourceAttributes": [],
-            "limit": 250,
-            "offset": 0,
-            "resourcePluginIds": [
-              "actualScheduleSummary",
-              "adherenceSummary",
-              "draftSchedule",
-              "extendedWorkResourceDetails",
-              "publishedSchedule",
-              "secondaryTimeRecordSummary",
-              "workResourceDetails"
-            ],
-            "sortCriteria": {
-              "ascending": true,
-              "focusedViewDateAscending": true,
-              "pluginId": "draftSchedule",
-              "strategyId": "ShiftStartTime"
-            },
-            "summaryIntervals": [],
-            "viewEndDate": "2024-04-24T13:00:00.000Z",
-            "viewStartDate": "2024-03-17T13:00:00.000Z",
-            "workResourceWorkspaceCriteria": {
-              "employeeFilterName": "DEFAULT_ALL",
-              "endTime": "2024-04-24T13:00:00.000Z",
-              "schedulingPeriodId": "4052",
-              "startTime": "2024-03-17T13:00:00.000Z",
-              "useAllEmployees": true,
-              "useAllPhantoms": false,
-              "useAllPoolers": false,
-              "workResourceIds": []
-            }
-          }
-        },
-        "type": "v2/calendar-filter"
-      }
-    }),
     "method": "POST",
     "mode": "cors"
   });
 
-  return await cal.json();
+  return await request.json();
+}
+
+function getStartEnd() {
+  var currentDate = new Date();
+  // If the current day isn't Monday, find the most recent Monday
+  if (currentDate.getUTCDay() !== 1) { // 0 is Sunday, 1 is Monday
+      var daysToMonday = 1 - currentDate.getUTCDay(); // Calculate days until next Monday
+      if (daysToMonday > 0) daysToMonday -= 7; // If the current day is after Monday, subtract a week
+
+      currentDate.setUTCDate(currentDate.getUTCDate() + daysToMonday); // Set currentUTCDate to the most recent Monday
+  }
+
+  // Set start date to currentUTCDate
+  var startDate = new Date(currentDate);
+  var endDate = new Date(startDate);
+
+  // Find the date 4 weeks from the start date
+  endDate.setUTCDate(startDate.getUTCDate() + 28);
+
+  // Format dates as "YYYY-MM-DDTHH:MM:SSZ"
+  function formatDate(date) {
+      var year = date.getUTCFullYear();
+      var month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+      var day = date.getUTCDate().toString().padStart(2, '0');
+      var hours = '00';
+      var minutes = '00';
+      var seconds = '00';
+      return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}Z`;
+  }
+
+  // Format start date and date 4 weeks from start date
+  var formattedStartDate = formatDate(startDate);
+  var formattedEndDate = formatDate(endDate);
+
+  return [formattedStartDate, formattedEndDate];
+}
+
+function mapWorkRules(list) {
+  var resultMap = {};
+  list.forEach(function(item) {
+      resultMap[item.id] = item.name;
+  });
+  return resultMap;
+}
+
+function summarize(schedule, workRules) {
+  var summary = [];
+  schedule.forEach(function(shift) {
+    let startTime = new Date(shift['startTime']);
+    let endTime = new Date(shift['endTime']);
+    let durationMinutes = shift['durationMinutes'];
+    if (shift.hasOwnProperty('shiftId')) {
+      workRule = workRules[shift['shiftId']];
+      summary.push({
+        start: startTime,
+        end: endTime,
+        duration: durationMinutes,
+        workRule: workRule
+      });
+    }
+  });
+  return summary;
 }
 
 (async (url) => {
-  console.log(await getCalendar(url))
+  const BODY_SCHEDULE = (start, end) => ({
+    "data": {
+      "attributes": {
+        "calendarFilterCriteria": {
+          "extendedResourceAttributes": [],
+          "limit": 999,
+          "offset": 0,
+          "resourcePluginIds": [
+            "actualScheduleSummary",
+            "adherenceSummary",
+            "draftSchedule",
+            "extendedWorkResourceDetails",
+            "publishedSchedule",
+            "secondaryTimeRecordSummary",
+            "workResourceDetails"
+          ],
+          "sortCriteria": {
+            "ascending": true,
+            "focusedViewDateAscending": true,
+            "pluginId": "draftSchedule",
+            "strategyId": "ShiftStartTime"
+          },
+          "summaryIntervals": [],
+          "viewEndDate": end ,
+          "viewStartDate": start,
+          "workResourceWorkspaceCriteria": {
+            "employeeFilterName": "DEFAULT_ALL",
+            "endTime": end,
+            "startTime": start,
+            "useAllEmployees": true,
+            "useAllPhantoms": false,
+            "useAllPoolers": false,
+            "workResourceIds": []
+          }
+        }
+      },
+      "type": "v2/calendar-filter"
+    }
+  });
+
+  const SHIFT_WORKRULES = (start, end) => ({
+    "data": {
+      "type": "v1/find-shiftworkrules",
+      "attributes": {
+        "workResourceWorkspaceCriteria": {
+          "startTime": start,
+          "endTime": end,
+          "useAllEmployees": true,
+          "useAllPhantoms": true,
+          "useAllPoolers": false,
+          "workResourceIds": [],
+          "employeeFilterName": "",
+        }
+      }
+    }
+  });
+
+  let [start, end] = getStartEnd();
+  let schedule = (await doWebRequest(BODY_SCHEDULE(start, end)))['data']['attributes']['resourceData'];
+  let workRules = (await doWebRequest(SHIFT_WORKRULES(start, end)))['data']['attributes']['shifts'];
+
+  let mappedWorkRules = mapWorkRules(workRules);
+
+  let shifts = [];
+
+  schedule.forEach(function(resource) {
+    console.log(resource);
+    let resourceDetails = resource['workResourceDetails'];
+    let name = resourceDetails['name']['first'] + ' ' + resourceDetails['name']['last'];
+
+    let published = summarize(resource['publishedSchedule']['events'], mappedWorkRules);
+
+    for (let i = 0; i < published.length; i++) {
+      let shift = published[i];
+      let role = '???'
+      let workRule = shift.workRule || '';
+      if (workRule.includes('ISS')) {
+        role = 'ISS';
+      } else if (workRule.includes('CS')) {
+        role = 'CS';
+      }
+
+      shifts.push({
+        name: name,
+        start: shift.start,
+        end: shift.end,
+        duration: shift.duration,
+        role: role
+      });
+    }
+
+  });
+
+  let modal = document.getElementById('vcb-modal');
+  if (modal) {
+    modal.remove();
+  }
+
+  let vcb_text = await (await fetch("https://raw.githubusercontent.com/tfpk/verint-calendar-bookmarklet/main/modal.html?" + Math.random().toString(36))).text();
+
+  vcb_text = vcb_text.replace('[[DATA]]', JSON.stringify(shifts));
+
+  document.body.innerHTML += vcb_text;
 })()

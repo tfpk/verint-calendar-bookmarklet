@@ -98,127 +98,127 @@ function getStartEnd() {
   }
 
   (async (url) => {
-  try {
-    document.body.innerHTML = `
-  <h1 Loading...
-  <div class="spinner-border" role="status">
-    <span class="sr-only">Loading...</span>
-  </div> <h1/>
+    try {
+      document.body.innerHTML = `
+      <h1 Loading...
+      <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+      </div> <h1/>
 
-  <button onclick="location.reload()">Press this to go back</button>
-  `;
+      <button onclick="location.reload()">Press this to go back</button>
+      `;
 
-    const BODY_SCHEDULE = (start, end) => ({
-      "data": {
-        "attributes": {
-          "calendarFilterCriteria": {
-            "extendedResourceAttributes": [],
-            "limit": 999,
-            "offset": 0,
-            "resourcePluginIds": [
-              "actualScheduleSummary",
-              "adherenceSummary",
-              "draftSchedule",
-              "extendedWorkResourceDetails",
-              "publishedSchedule",
-              "secondaryTimeRecordSummary",
-              "workResourceDetails"
-            ],
-            "sortCriteria": {
-              "ascending": true,
-              "focusedViewDateAscending": true,
-              "pluginId": "draftSchedule",
-              "strategyId": "ShiftStartTime"
-            },
-            "summaryIntervals": [],
-            "viewEndDate": end ,
-            "viewStartDate": start,
+      const BODY_SCHEDULE = (start, end) => ({
+        "data": {
+          "attributes": {
+            "calendarFilterCriteria": {
+              "extendedResourceAttributes": [],
+              "limit": 999,
+              "offset": 0,
+              "resourcePluginIds": [
+                "actualScheduleSummary",
+                "adherenceSummary",
+                "draftSchedule",
+                "extendedWorkResourceDetails",
+                "publishedSchedule",
+                "secondaryTimeRecordSummary",
+                "workResourceDetails"
+              ],
+              "sortCriteria": {
+                "ascending": true,
+                "focusedViewDateAscending": true,
+                "pluginId": "draftSchedule",
+                "strategyId": "ShiftStartTime"
+              },
+              "summaryIntervals": [],
+              "viewEndDate": end ,
+              "viewStartDate": start,
+              "workResourceWorkspaceCriteria": {
+                "employeeFilterName": "DEFAULT_ALL",
+                "endTime": end,
+                "startTime": start,
+                "useAllEmployees": true,
+                "useAllPhantoms": false,
+                "useAllPoolers": false,
+                "workResourceIds": []
+              }
+            }
+          },
+          "type": "v2/calendar-filter"
+        }
+      });
+
+      const SHIFT_WORKRULES = (start, end) => ({
+        "data": {
+          "type": "v1/find-shiftworkrules",
+          "attributes": {
             "workResourceWorkspaceCriteria": {
-              "employeeFilterName": "DEFAULT_ALL",
-              "endTime": end,
               "startTime": start,
+              "endTime": end,
               "useAllEmployees": true,
-              "useAllPhantoms": false,
+              "useAllPhantoms": true,
               "useAllPoolers": false,
-              "workResourceIds": []
+              "workResourceIds": [],
+              "employeeFilterName": "",
             }
           }
-        },
-        "type": "v2/calendar-filter"
-      }
-    });
+        }
+      });
 
-    const SHIFT_WORKRULES = (start, end) => ({
-      "data": {
-        "type": "v1/find-shiftworkrules",
-        "attributes": {
-          "workResourceWorkspaceCriteria": {
-            "startTime": start,
-            "endTime": end,
-            "useAllEmployees": true,
-            "useAllPhantoms": true,
-            "useAllPoolers": false,
-            "workResourceIds": [],
-            "employeeFilterName": "",
+      let [start, end] = getStartEnd();
+      let schedule = (await doWebRequest(BODY_SCHEDULE(start, end)))['data']['attributes']['resourceData'];
+      let workRules = (await doWebRequest(SHIFT_WORKRULES(start, end)))['data']['attributes']['shifts'];
+
+      let mappedWorkRules = mapWorkRules(workRules);
+
+      let shifts = [];
+
+      schedule.forEach(function(resource) {
+        let resourceDetails = resource['workResourceDetails'];
+        let name = resourceDetails['name']['first'] + ' ' + resourceDetails['name']['last'];
+
+        let published = summarize(resource['publishedSchedule']['events'], mappedWorkRules);
+
+        for (let i = 0; i < published.length; i++) {
+          let shift = published[i];
+          let role = '???'
+          let workRule = shift.workRule || '';
+          if (workRule.includes('ISS')) {
+            role = 'ISS';
+          } else if (workRule.includes('CS')) {
+            role = 'CS';
           }
-        }
-      }
-    });
 
-    let [start, end] = getStartEnd();
-    let schedule = (await doWebRequest(BODY_SCHEDULE(start, end)))['data']['attributes']['resourceData'];
-    let workRules = (await doWebRequest(SHIFT_WORKRULES(start, end)))['data']['attributes']['shifts'];
-
-    let mappedWorkRules = mapWorkRules(workRules);
-
-    let shifts = [];
-
-    schedule.forEach(function(resource) {
-      let resourceDetails = resource['workResourceDetails'];
-      let name = resourceDetails['name']['first'] + ' ' + resourceDetails['name']['last'];
-
-      let published = summarize(resource['publishedSchedule']['events'], mappedWorkRules);
-
-      for (let i = 0; i < published.length; i++) {
-        let shift = published[i];
-        let role = '???'
-        let workRule = shift.workRule || '';
-        if (workRule.includes('ISS')) {
-          role = 'ISS';
-        } else if (workRule.includes('CS')) {
-          role = 'CS';
+          shifts.push({
+            name: name,
+            start: shift.start,
+            end: shift.end,
+            duration: shift.duration,
+            role: role
+          });
         }
 
-        shifts.push({
-          name: name,
-          start: shift.start,
-          end: shift.end,
-          duration: shift.duration,
-          role: role
-        });
+      });
+
+      let modal = document.getElementById('vcb-modal');
+      if (modal) {
+        modal.remove();
       }
 
-    });
+      let vcb_text = await (await fetch("https://raw.githubusercontent.com/tfpk/verint-calendar-bookmarklet/main/modal.html?" + Math.random().toString(36))).text();
 
-    let modal = document.getElementById('vcb-modal');
-    if (modal) {
-      modal.remove();
+      window.localStorage.setItem('vcb_data', JSON.stringify(shifts));
+
+      document.body.innerHTML = vcb_text;
+    } catch (e) {
+      console.error(e);
+      document.body.innerHTML = `
+      <h1>Something went wrong</h1>
+      <pre>
+  ${e.toString()}
+  ${e.stack}
+      </pre>
+      <button onclick="location.reload()">Press this to go back</button>
+      `;
     }
-
-    let vcb_text = await (await fetch("https://raw.githubusercontent.com/tfpk/verint-calendar-bookmarklet/main/modal.html?" + Math.random().toString(36))).text();
-
-    window.localStorage.setItem('vcb_data', JSON.stringify(shifts));
-
-    document.body.innerHTML = vcb_text;
-  } catch (e) {
-    console.error(e);
-    document.body.innerHTML = `
-    <h1>Something went wrong</h1>
-    <pre>
-${e.toString()}
-${e.stack}
-    </pre>
-    <button onclick="location.reload()">Press this to go back</button>
-    `;
-  }
 })()

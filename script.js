@@ -178,7 +178,7 @@ function displayData(vcb_data) {
    vcb_data.forEach((item) => {
      let date = new Date(item.start);
      let date_string = date.toISOString().split('T')[0];
-     if (!day_columns[date]) {
+     if (!day_columns[date_string]) {
        // create a div with class column
        let div = document.createElement('div');
        div.classList.add('column');

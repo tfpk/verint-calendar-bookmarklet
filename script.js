@@ -199,5 +199,5 @@ function summarize(schedule, workRules) {
 
   vcb_text = vcb_text.replace('[[DATA]]', JSON.stringify(shifts));
 
-  document.body.innerHTML += vcb_text;
+  document.body.innerHTML = vcb_text;
 })()

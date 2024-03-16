@@ -145,6 +145,7 @@ function fmtTime(time) {
 }
 
 function displayData(vcb_data) {
+  vcb_data.sort((a, b) => a.start - b.start || a.end - b.end);
   const base_page = `
 <style>
  .close {
@@ -211,7 +212,7 @@ function displayData(vcb_data) {
      let li = document.createElement('li');
      li.innerHTML = `<b>${fmtTime(item.start)} to ${fmtTime(item.end)}</b>: ${item.name} (${item.role})`;
      if (item.role === 'ISS') {
-        li.style.backgroundColor = 'darkred';
+        li.style.color = 'darkred';
      }
      day_columns[date_string].appendChild(li);
 

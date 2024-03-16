@@ -174,7 +174,7 @@ function setSimplePage(title, content) {
 
       const SHIFT_WORKRULES = (start, end) => ({
         "data": {
-          "type": "v1/find-shiftworkrule",
+          "type": "v1/find-shiftworkrules",
           "attributes": {
             "workResourceWorkspaceCriteria": {
               "startTime": start,
@@ -235,7 +235,7 @@ function setSimplePage(title, content) {
 
       document.body.innerHTML = vcb_text;
     } catch (e) {
-      let error = e.toString() + '\n\n' + e.stack;
+      let error = e.stack;
       setSimplePage('Something Went Wrong', "Please report this error to the developer: \n" + error);
       console.error(e);
     }

@@ -36,7 +36,6 @@ async function doWebRequest(body) {
 }
 
 function getStartEnd() {
-  try {
     var currentDate = new Date();
     // If the current day isn't Monday, find the most recent Monday
     if (currentDate.getUTCDay() !== 1) { // 0 is Sunday, 1 is Monday
@@ -99,6 +98,7 @@ function getStartEnd() {
   }
 
   (async (url) => {
+  try {
     document.body.innerHTML = `
   <h1 Loading...
   <div class="spinner-border" role="status">

@@ -97,7 +97,7 @@ function getStartEnd() {
     return summary;
   }
 
-function setSimplePage(title, content) => {
+function setSimplePage(title, content) {
       document.body.innerHTML = `
 <style>
     body {

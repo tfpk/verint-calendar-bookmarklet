@@ -193,14 +193,14 @@ function displayData(vcb_data) {
    let day_columns = {};
    vcb_data.forEach((item) => {
      let date = new Date(item.start);
-     let date_string = date.toISOString().split('T')[0];
+     let date_string = date.getFullYear() + '-' + (date.getMonth() + 1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0');
      if (!day_columns[date_string]) {
        // create a div with class column
        let div = document.createElement('div');
        div.classList.add('column');
        // put an h3 inside
        let h3 = document.createElement('h3');
-       h3.textContent = date.toLocaleDateString();
+       h3.textContent = date.toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'short', day: 'numeric'});
        div.appendChild(h3);
        // put a ul inside
        let ul = document.createElement('ul');

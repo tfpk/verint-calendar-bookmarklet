@@ -73,7 +73,7 @@ async function getCalendar() {
         },
         "type": "v2/calendar-filter"
       }
-    })
+    }),
     "method": "POST",
     "mode": "cors"
   });

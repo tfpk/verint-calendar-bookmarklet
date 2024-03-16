@@ -194,11 +194,11 @@ function summarize(schedule, workRules) {
   let modal = document.getElementById('vcb-modal');
   if (modal) {
     modal.remove();
+
+    let vcb_text = await (await fetch("https://raw.githubusercontent.com/tfpk/verint-calendar-bookmarklet/main/modal.html?" + Math.random().toString(36))).text();
+
+    vcb_text = vcb_text.replace('[[DATA]]', JSON.stringify(shifts));
+
+    document.body.innerHTML += vcb_text;
   }
-
-  let vcb_text = await (await fetch("https://raw.githubusercontent.com/tfpk/verint-calendar-bookmarklet/main/modal.html?" + Math.random().toString(36))).text();
-
-  vcb_text = vcb_text.replace('[[DATA]]', JSON.stringify(shifts));
-
-  document.body.innerHTML += vcb_text;
 })()

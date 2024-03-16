@@ -4,7 +4,7 @@ function getCookie(name) {
   if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-await function getCalendar() {
+async function getCalendar() {
   let login = getCookie("csrfp_login");
   let token = getCookie("csrfp_token");
 

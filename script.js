@@ -48,13 +48,13 @@ async function getCalendar() {
               "strategyId": "ShiftStartTime"
             },
             "summaryIntervals": [],
-            "viewEndDate": "2024-03-24T13:00:00.000Z",
-            "viewStartDate": "2024-04-17T13:00:00.000Z",
+            "viewEndDate": "2024-04-24T13:00:00.000Z",
+            "viewStartDate": "2024-03-17T13:00:00.000Z",
             "workResourceWorkspaceCriteria": {
               "employeeFilterName": "DEFAULT_ALL",
-              "endTime": "2024-03-24T13:00:00.000Z",
+              "endTime": "2024-04-24T13:00:00.000Z",
               "schedulingPeriodId": "4052",
-              "startTime": "2024-04-17T13:00:00.000Z",
+              "startTime": "2024-03-17T13:00:00.000Z",
               "useAllEmployees": true,
               "useAllPhantoms": false,
               "useAllPoolers": false,

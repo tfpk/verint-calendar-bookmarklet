@@ -128,6 +128,22 @@ function setSimplePage(title, content) {
       `;
 }
 
+function fmtTime(time) {
+  // returns 9am, 9pm or 9:30am
+  let hours = time.getHours();
+  let minutes = time.getMinutes();
+  let ampm = hours >= 12 ? 'pm' : 'am';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+
+  if (minutes === 0) {
+    return hours + ampm;
+  } else {
+    return hours + ':' + minutes.toString().padStart(2, '0') + ampm;
+  }
+
+}
+
 function displayData(vcb_data) {
   const base_page = `
 <style>
@@ -193,7 +209,7 @@ function displayData(vcb_data) {
      }
 
      let li = document.createElement('li');
-     li.innerHTML = `<b>${item.start} to ${item.end}</b>: ${item.name} (${item.location})`;
+     li.innerHTML = `<b>${fmtTime(item.start)} to ${fmtTime(item.end)}</b>: ${item.name} (${item.role})`;
      day_columns[date_string].appendChild(li);
 
    });

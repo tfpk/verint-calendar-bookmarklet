@@ -42,7 +42,7 @@
 <script>
 
  (() => {
-   let vcb_data = JSON.parse(document.localStorage.getItem('vcb_data'));
+   let vcb_data = JSON.parse(window.localStorage.getItem('vcb_data'));
    let day_columns = {};
    vcb_data.forEach((item) => {
      let date = new Date(item.start);

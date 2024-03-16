@@ -235,7 +235,7 @@ function setSimplePage(title, content) {
 
       document.body.innerHTML = vcb_text;
     } catch (e) {
-      let error = error.toString() + '\n\n' + e.stack;
+      let error = e.toString() + '\n\n' + e.stack;
       setSimplePage('Something Went Wrong', "Please report this error to the developer: \n" + error);
       console.error(e);
     }

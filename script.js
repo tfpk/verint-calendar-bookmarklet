@@ -128,6 +128,90 @@ function setSimplePage(title, content) {
       `;
 }
 
+function displayData(vcb_data) {
+  const base_page = `
+<style>
+ .close {
+   color: #aaa;
+   position: fixed;
+   font-size: 28px;
+   font-weight: bold;
+ }
+
+ .close:hover,
+ .close:focus {
+   color: black;
+   text-decoration: none;
+   cursor: pointer;
+ }
+
+ .table {
+   display: flex;
+   flex-direction: row;
+   justify-content: space-between;
+   height: 100%;
+ }
+
+ .column {
+   flex: 1;
+   padding: 10px;
+   margin: 10px;
+   border: 1px solid #888;
+   min-width: 400px;
+   height: 95%;
+ }
+ body {
+   background: #eee;
+   font-family: Arial, Helvetica, sans-serif;
+   font-size: 20px;
+ }
+
+</style>
+
+<span class="close" onclick="location.reload()">&times;</span>
+<div class="table">
+</div>
+`;
+   document.body.innerHTML = base_page;
+   console.log(vcb_data);
+   let day_columns = {};
+   vcb_data.forEach((item) => {
+     let date = new Date(item.start);
+     if (!day_columns[date]) {
+       // create a div with class column
+       let div = document.createElement('div');
+       div.classList.add('column');
+       // put an h3 inside
+       let h3 = document.createElement('h3');
+       h3.textContent = date.toLocaleDateString();
+       div.appendChild(h3);
+       // put a ul inside
+       let ul = document.createElement('ul');
+       div.appendChild(ul);
+       day_columns[date] = div;
+     }
+
+     let li = document.createElement('li');
+     li.innerHTML = `<b>${item.start} to ${item.end}</b>: ${item.name} (${item.location})`;
+     day_columns[date].appendChild(li);
+
+   });
+
+   // go through the sorted list of day_column properties
+   let sorted_days = Object.keys(day_columns).sort();
+   sorted_days.forEach((day) => {
+     let table = document.querySelector('.table');
+      table.appendChild(day_columns[day]);
+   });
+
+    document.body.addEventListener("wheel", (evt) => {
+      evt.preventDefault();
+      document.body.scrollLeft += evt.deltaY;
+    });
+
+}
+
+
   (async (url) => {
     try {
       setSimplePage('Loading')
@@ -229,11 +313,7 @@ function setSimplePage(title, content) {
         modal.remove();
       }
 
-      let vcb_text = await (await fetch("https://raw.githubusercontent.com/tfpk/verint-calendar-bookmarklet/main/index.html?" + Math.random().toString(36))).text();
-
-      window.localStorage.setItem('vcb_data', JSON.stringify(shifts));
-
-      document.body.innerHTML = vcb_text;
+      displayData(shifts);
     } catch (e) {
       let error = e.stack;
       setSimplePage('Something Went Wrong', "Please report this error to the developer: \n" + error);

@@ -174,7 +174,7 @@ function setSimplePage(title, content) {
 
       const SHIFT_WORKRULES = (start, end) => ({
         "data": {
-          "type": "v1/find-shiftworkrules",
+          "type": "v1/find-shiftworkrule",
           "attributes": {
             "workResourceWorkspaceCriteria": {
               "startTime": start,

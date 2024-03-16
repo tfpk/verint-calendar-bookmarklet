@@ -30,7 +30,7 @@ async function getCalendar() {
         "attributes": {
           "calendarFilterCriteria": {
             "extendedResourceAttributes": [],
-            "limit": 50,
+            "limit": 250,
             "offset": 0,
             "resourcePluginIds": [
               "actualScheduleSummary",
@@ -47,23 +47,14 @@ async function getCalendar() {
               "pluginId": "draftSchedule",
               "strategyId": "ShiftStartTime"
             },
-            "summaryIntervals": [
-              "2024-03-17T13:00:00.000Z",
-              "2024-03-18T13:00:00.000Z",
-              "2024-03-19T13:00:00.000Z",
-              "2024-03-20T13:00:00.000Z",
-              "2024-03-21T13:00:00.000Z",
-              "2024-03-22T13:00:00.000Z",
-              "2024-03-23T13:00:00.000Z",
-              "2024-03-24T13:00:00.000Z"
-            ],
+            "summaryIntervals": [],
             "viewEndDate": "2024-03-24T13:00:00.000Z",
-            "viewStartDate": "2024-03-17T13:00:00.000Z",
+            "viewStartDate": "2024-04-17T13:00:00.000Z",
             "workResourceWorkspaceCriteria": {
               "employeeFilterName": "DEFAULT_ALL",
               "endTime": "2024-03-24T13:00:00.000Z",
               "schedulingPeriodId": "4052",
-              "startTime": "2024-03-17T13:00:00.000Z",
+              "startTime": "2024-04-17T13:00:00.000Z",
               "useAllEmployees": true,
               "useAllPhantoms": false,
               "useAllPoolers": false,

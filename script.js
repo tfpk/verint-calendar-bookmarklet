@@ -97,16 +97,40 @@ function getStartEnd() {
     return summary;
   }
 
+function setSimplePage(title, content) => {
+      document.body.innerHTML = `
+<style>
+    body {
+        font-family: serif;
+        background-color: #f2f2f2;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .content {
+        text-align: center;
+        padding: 20px;
+        border-radius: 20px;
+        min-width: 1000px;
+        min-height: 600px;
+        background-color: white;
+    }
+</style>
+<div class="content">
+    <h1 style="font-size: 3rem;">${title}</h1>
+    ${content ? '<pre>' + content + '</pre>' : ''}
+    <button onclick="window.location.reload();" style="margin-top: 20px;">Press this to go back</button>
+</div>
+      `;
+}
+
   (async (url) => {
     try {
-      document.body.innerHTML = `
-      <h1 Loading...
-      <div class="spinner-border" role="status">
-        <span class="sr-only">Loading...</span>
-      </div> <h1/>
-
-      <button onclick="location.reload()">Press this to go back</button>
-      `;
+      setSimplePage('Loading')
 
       const BODY_SCHEDULE = (start, end) => ({
         "data": {
@@ -205,20 +229,14 @@ function getStartEnd() {
         modal.remove();
       }
 
-      let vcb_text = await (await fetch("https://raw.githubusercontent.com/tfpk/verint-calendar-bookmarklet/main/modal.html?" + Math.random().toString(36))).text();
+      let vcb_text = await (await fetch("https://raw.githubusercontent.com/tfpk/verint-calendar-bookmarklet/main/index.html?" + Math.random().toString(36))).text();
 
       window.localStorage.setItem('vcb_data', JSON.stringify(shifts));
 
       document.body.innerHTML = vcb_text;
     } catch (e) {
+      let error = error.toString() + '\n\n' + e.stack;
+      setSimplePage('Something Went Wrong', "Please report this error to the developer: \n" + error);
       console.error(e);
-      document.body.innerHTML = `
-      <h1>Something went wrong</h1>
-      <pre>
-  ${e.toString()}
-  ${e.stack}
-      </pre>
-      <button onclick="location.reload()">Press this to go back</button>
-      `;
     }
 })()

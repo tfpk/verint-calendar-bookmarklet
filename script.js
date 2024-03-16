@@ -177,6 +177,7 @@ function displayData(vcb_data) {
    let day_columns = {};
    vcb_data.forEach((item) => {
      let date = new Date(item.start);
+     let date_string = date.toISOString().split('T')[0];
      if (!day_columns[date]) {
        // create a div with class column
        let div = document.createElement('div');
@@ -188,12 +189,12 @@ function displayData(vcb_data) {
        // put a ul inside
        let ul = document.createElement('ul');
        div.appendChild(ul);
-       day_columns[date] = div;
+       day_columns[date_string] = div;
      }
 
      let li = document.createElement('li');
      li.innerHTML = `<b>${item.start} to ${item.end}</b>: ${item.name} (${item.location})`;
-     day_columns[date].appendChild(li);
+     day_columns[date_string].appendChild(li);
 
    });
 

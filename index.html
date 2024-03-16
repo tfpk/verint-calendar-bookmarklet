@@ -43,6 +43,7 @@
 
  (() => {
    let vcb_data = JSON.parse(window.localStorage.getItem('vcb_data'));
+   console.log(vcb_data);
    let day_columns = {};
    vcb_data.forEach((item) => {
      let date = new Date(item.start);

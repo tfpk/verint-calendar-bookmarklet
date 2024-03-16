@@ -16,7 +16,7 @@ async function getCalendar() {
         "Content-Type": "application/vnd.api+json",
         "Crnk-Compact": "true",
         "X-CSRF-Login": login,
-        "X-CSRF-Header": header,
+        "X-CSRF-Header": token,
         "Sec-GPC": "1",
         "Sec-Fetch-Dest": "empty",
         "Sec-Fetch-Mode": "cors",
@@ -25,7 +25,7 @@ async function getCalendar() {
         "Cache-Control": "no-cache"
     },
     "referrer": `${URL}/wfo/ui/`,
-    "body": json.dumps({
+    "body": JSON.stringify({
       "data": {
         "attributes": {
           "calendarFilterCriteria": {

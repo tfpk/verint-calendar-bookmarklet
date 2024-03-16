@@ -98,6 +98,15 @@ function summarize(schedule, workRules) {
 }
 
 (async (url) => {
+  document.body.innerHTML = `
+<h1 Loading...
+<div class="spinner-border" role="status">
+  <span class="sr-only">Loading...</span>
+</div> <h1/>
+
+<button onclick="location.reload()">Press this to go back</button>
+`;
+
   const BODY_SCHEDULE = (start, end) => ({
     "data": {
       "attributes": {

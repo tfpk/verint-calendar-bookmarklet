@@ -227,7 +227,7 @@ function displayData(vcb_data) {
 
     document.body.addEventListener("wheel", (evt) => {
       evt.preventDefault();
-      document.body.scrollLeft += evt.deltaY;
+      document.body.scrollLeft -= evt.deltaY;
     });
 
 }

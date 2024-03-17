@@ -236,6 +236,7 @@ function displayData(vcb_data) {
   (async () => {
     if (!window.location.href.includes(URL)) {
       setSimplePage('You are not logged into Verint!', "You must be logged into verint before you can use this tool.");
+      return;
     }
     try {
       setSimplePage('Loading')

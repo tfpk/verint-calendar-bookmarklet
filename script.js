@@ -175,7 +175,8 @@ function displayData(vcb_data) {
    margin: 10px;
    border: 1px solid #888;
    min-width: 400px;
-   height: 95%;
+   height: 100vh;
+   overflow-y: scroll;
  }
  body {
    background: #eee;

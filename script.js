@@ -145,7 +145,7 @@ function fmtTime(time) {
 }
 
 function displayData(vcb_data) {
-  vcb_data.sort((a, b) => a.start - b.start || a.end - b.end);
+  vcb_data.sort((a, b) => a.start - b.start || b.role.localeCompare(a.role) || a.end - b.end);
   const base_page = `
 <style>
  .close {

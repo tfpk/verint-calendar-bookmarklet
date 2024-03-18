@@ -91,7 +91,7 @@ function getStartEnd() {
           start: startTime,
           end: endTime,
           duration: durationMinutes,
-          workRule: workRule
+          workRule: workRule,
           isTimeOff: false
         });
       }

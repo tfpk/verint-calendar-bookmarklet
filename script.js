@@ -151,7 +151,7 @@ function displayData(vcb_data) {
  .close {
    color: #aaa;
    position: fixed;
-   font-size: 28px;
+   font-size: 38px;
    font-weight: bold;
  }
 
@@ -181,7 +181,7 @@ function displayData(vcb_data) {
  body {
    background: #eee;
    font-family: Arial, Helvetica, sans-serif;
-   font-size: 20px;
+   font-size: 26px;
  }
 
 </style>

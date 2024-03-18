@@ -362,7 +362,7 @@ function displayData(vcb_data) {
             end: shift.end,
             duration: shift.duration,
             role: role,
-            isTimeOff: shift.isTimeOff
+            isTimeOff: shift.isTimeOff,
             isDraftOnly: false
           });
         }
@@ -385,7 +385,7 @@ function displayData(vcb_data) {
             end: shift.end,
             duration: shift.duration,
             role: role,
-            isTimeOff: shift.isTimeOff
+            isTimeOff: shift.isTimeOff,
             isDraftOnly: true
           });
         }

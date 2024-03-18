@@ -230,6 +230,10 @@ function displayData(vcb_data) {
      }
 
      let li = document.createElement('li');
+     let role = item.role;
+     if (item.isDraft) {
+        role += ':Draft';
+     }
      li.innerHTML = `<b>${fmtTime(item.start)} to ${fmtTime(item.end)}</b>: ${item.name} (${item.role})`;
      if (item.role === 'ISS') {
         li.style.color = 'darkred';
@@ -237,6 +241,10 @@ function displayData(vcb_data) {
      if (item.isTimeOff) {
        li.style.textDecoration = 'line-through';
        li.style.color = 'gray';
+     }
+     if (item.isDraft) {
+       li.style.textDecoration = 'italic';
+       li.style.color = 'darkgreen';
      }
      day_columns[date_string].appendChild(li);
 
@@ -334,10 +342,12 @@ function displayData(vcb_data) {
         let resourceDetails = resource['workResourceDetails'];
         let name = resourceDetails['name']['first'] + ' ' + resourceDetails['name']['last'];
 
+        let draft = summarize(resource['draftSchedule']['events'], mappedWorkRules);
         let published = summarize(resource['publishedSchedule']['events'], mappedWorkRules);
 
         for (let i = 0; i < published.length; i++) {
           let shift = published[i];
+
           let role = '???'
           let workRule = shift.workRule || '';
           if (workRule.includes('ISS')) {
@@ -351,7 +361,32 @@ function displayData(vcb_data) {
             start: shift.start,
             end: shift.end,
             duration: shift.duration,
-            role: role
+            role: role,
+            isTimeOff: shift.isTimeOff
+            isDraftOnly: false
+          });
+        }
+        for (let i = 0; i < draft.length; i++) {
+          if (published.find((p) => p.start === draft[i].start && p.end === draft[i].end)) {
+            continue;
+          }
+
+          let role = '???'
+          let workRule = shift.workRule || '';
+          if (workRule.includes('ISS')) {
+            role = 'ISS';
+          } else if (workRule.includes('CS')) {
+            role = 'CS';
+          }
+
+          shifts.push({
+            name: name,
+            start: shift.start,
+            end: shift.end,
+            duration: shift.duration,
+            role: role,
+            isTimeOff: shift.isTimeOff
+            isDraftOnly: true
           });
         }
 

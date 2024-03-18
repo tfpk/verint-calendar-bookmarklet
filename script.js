@@ -104,8 +104,9 @@ function getStartEnd() {
     });
 
     timeOffs.forEach(function(timeOff) {
-      let startTime = timeOff.start;
-      let endTime = timeOff.end;
+      let startTime = new Date(timeOff.start);
+      let endTime = new Date(timeOff.end);
+      console.log(startTime);
       summary.forEach(function(shift) {
         if (shift.start <= startTime && shift.end >= endTime) {
           shift.isTimeOff = true;

@@ -368,7 +368,7 @@ function displayData(vcb_data) {
         }
         for (let i = 0; i < draft.length; i++) {
           let shift = draft[i];
-          if (published.find((p) => p.start === draft[i].start && p.end === draft[i].end)) {
+          if (shifts.find((p) => s.start === shift.start && s.end === shift.end)) {
             continue;
           }
 

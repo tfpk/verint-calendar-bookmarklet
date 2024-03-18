@@ -106,9 +106,9 @@ function getStartEnd() {
     timeOffs.forEach(function(timeOff) {
       let startTime = new Date(timeOff.start);
       let endTime = new Date(timeOff.end);
-      console.log(startTime);
       summary.forEach(function(shift) {
         if (shift.start <= startTime && shift.end >= endTime) {
+          console.log("Time off: " + startTime + " - " + endTime);
           shift.isTimeOff = true;
         }
       });
@@ -211,7 +211,6 @@ function displayData(vcb_data) {
 </div>
 `;
    document.body.innerHTML = base_page;
-   console.log(vcb_data);
    let day_columns = {};
    vcb_data.forEach((item) => {
      let date = new Date(item.start);

@@ -92,14 +92,13 @@ function getStartEnd() {
           end: endTime,
           duration: durationMinutes,
           workRule: workRule
+          isTimeOff: false
         });
       }
       if (shift.eventType === "TimeOffEvent") {
         timeOffs.push({
           start: startTime,
           end: endTime,
-          duration: durationMinutes,
-          isTimeOff: false;
         });
       }
     });

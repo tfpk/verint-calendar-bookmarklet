@@ -80,6 +80,7 @@ function getStartEnd() {
 
   function summarize(schedule, workRules) {
     var summary = [];
+    var timeOffs = [];
     schedule.forEach(function(shift) {
       let startTime = new Date(shift['startTime']);
       let endTime = new Date(shift['endTime']);
@@ -93,7 +94,26 @@ function getStartEnd() {
           workRule: workRule
         });
       }
+      if (shift.eventType === "TimeOffEvent") {
+        timeOffs.push({
+          start: startTime,
+          end: endTime,
+          duration: durationMinutes,
+          isTimeOff: false;
+        });
+      }
     });
+
+    timeOffs.forEach(function(timeOff) {
+      let startTime = timeOff.start;
+      let endTime = timeOff.end;
+      summary.forEach(function(shift) {
+        if (shift.start <= startTime && shift.end >= endTime) {
+          shift.isTimeOff = true;
+        }
+      });
+    });
+
     return summary;
   }
 
@@ -214,6 +234,10 @@ function displayData(vcb_data) {
      li.innerHTML = `<b>${fmtTime(item.start)} to ${fmtTime(item.end)}</b>: ${item.name} (${item.role})`;
      if (item.role === 'ISS') {
         li.style.color = 'darkred';
+     }
+     if (item.isTimeOff) {
+       li.style.textDecoration = 'line-through';
+       li.style.color = 'gray';
      }
      day_columns[date_string].appendChild(li);
 

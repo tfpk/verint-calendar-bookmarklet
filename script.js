@@ -108,7 +108,6 @@ function getStartEnd() {
       let endTime = new Date(timeOff.end);
       summary.forEach(function(shift) {
         if (shift.start <= startTime && shift.end >= endTime) {
-          console.log("Time off: " + startTime + " - " + endTime);
           shift.isTimeOff = true;
         }
       });
@@ -212,7 +211,7 @@ function displayData(vcb_data) {
 `;
    document.body.innerHTML = base_page;
    let day_columns = {};
-   vcb_data.forEach((item) => {
+  vcb_data.forEach((item) => {
      let date = new Date(item.start);
      let date_string = date.getFullYear() + '-' + (date.getMonth() + 1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0');
      if (!day_columns[date_string]) {
@@ -342,7 +341,7 @@ function displayData(vcb_data) {
         let resourceDetails = resource['workResourceDetails'];
         let name = resourceDetails['name']['first'] + ' ' + resourceDetails['name']['last'];
 
-        let draft = summarize(resource['draftSchedule']['events'], mappedWorkRules);
+        // let draft = summarize(resource['draftSchedule']['events'], mappedWorkRules);
         let published = summarize(resource['publishedSchedule']['events'], mappedWorkRules);
 
         for (let i = 0; i < published.length; i++) {
@@ -364,30 +363,6 @@ function displayData(vcb_data) {
             role: role,
             isTimeOff: shift.isTimeOff,
             isDraftOnly: false
-          });
-        }
-        for (let i = 0; i < draft.length; i++) {
-          let shift = draft[i];
-          if (shifts.find((p) => s.start === shift.start && s.end === shift.end)) {
-            continue;
-          }
-
-          let role = '???'
-          let workRule = shift.workRule || '';
-          if (workRule.includes('ISS')) {
-            role = 'ISS';
-          } else if (workRule.includes('CS')) {
-            role = 'CS';
-          }
-
-          shifts.push({
-            name: name,
-            start: shift.start,
-            end: shift.end,
-            duration: shift.duration,
-            role: role,
-            isTimeOff: shift.isTimeOff,
-            isDraftOnly: true
           });
         }
 

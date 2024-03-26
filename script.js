@@ -4,7 +4,7 @@ function getCookie(name) {
   if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-async function doWebRequest(body) {
+async function doWebPost(body) {
   let login = getCookie("csrfp_login");
   let token = getCookie("csrfp_token");
 
@@ -29,6 +29,33 @@ async function doWebRequest(body) {
     "body": JSON.stringify(body),
     "referrer": `${URL}/wfo/ui/`,
     "method": "POST",
+    "mode": "cors"
+  });
+
+  return await request.json();
+}
+
+async function doWebGet(api) {
+  let login = getCookie("csrfp_login");
+  let token = getCookie("csrfp_token");
+
+  let request = await fetch(`${URL}/api/wfm/main/${api}`, {
+    "credentials": "include",
+    "headers": {
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Content-Type": "application/vnd.api+json",
+        "Crnk-Compact": "true",
+        "X-CSRF-Login": login,
+        "X-CSRF-Header": token,
+        "Sec-GPC": "1",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-origin",
+        "Pragma": "no-cache",
+        "Cache-Control": "no-cache"
+    },
+    "referrer": `${URL}/wfo/ui/`,
     "mode": "cors"
   });
 
@@ -70,28 +97,37 @@ function getStartEnd() {
     return [formattedStartDate, formattedEndDate];
   }
 
-  function mapWorkRules(list) {
+  function mapActivities(list) {
     var resultMap = {};
     list.forEach(function(item) {
-        resultMap[item.id] = item.name;
+        resultMap[item.id] = item.attributes.name;
     });
     return resultMap;
   }
 
-  function summarize(schedule, workRules) {
+  function summarize(schedule, activities) {
     var summary = [];
     var timeOffs = [];
     schedule.forEach(function(shift) {
       let startTime = new Date(shift['startTime']);
       let endTime = new Date(shift['endTime']);
       let durationMinutes = shift['durationMinutes'];
-      if (shift.hasOwnProperty('shiftId')) {
-        workRule = workRules[shift['shiftId']];
+      let activityName = activities[shift['activityId']];
+      let role = '';
+      if (activityName.includes('ISS')) {
+        role = 'ISS';
+      } else if (activityName.includes('CSPL')) {
+        role = 'Pl.';
+      } else if (activityName.includes('CSPL')) {
+        role = 'CS';
+      }
+
+      if (shift.hasOwnProperty('shiftId') && ['ISS', 'CS', 'Pl.'].includes(role)) {
         summary.push({
           start: startTime,
           end: endTime,
           duration: durationMinutes,
-          workRule: workRule,
+          role: role,
           isTimeOff: false
         });
       }
@@ -233,9 +269,15 @@ function displayData(vcb_data) {
      if (item.isDraft) {
         role += ':Draft';
      }
-     li.innerHTML = `<b>${fmtTime(item.start)} to ${fmtTime(item.end)}</b>: ${item.name} (${item.role})`;
+
+     let role_text = role === "CS" ? '' : `(${role})`;
+
+     li.innerHTML = `<b>${fmtTime(item.start)} to ${fmtTime(item.end)}</b>: ${item.name} ${role_text}`;
      if (item.role === 'ISS') {
         li.style.color = 'darkred';
+     }
+     if (item.role === 'Pl.') {
+        li.style.color = '#007bd4';
      }
      if (item.isTimeOff) {
        li.style.textDecoration = 'line-through';
@@ -314,7 +356,7 @@ function displayData(vcb_data) {
 
       const SHIFT_WORKRULES = (start, end) => ({
         "data": {
-          "type": "v1/find-shiftworkrules",
+          "type": "v1/find-shiftworkr",
           "attributes": {
             "workResourceWorkspaceCriteria": {
               "startTime": start,
@@ -330,10 +372,10 @@ function displayData(vcb_data) {
       });
 
       let [start, end] = getStartEnd();
-      let schedule = (await doWebRequest(BODY_SCHEDULE(start, end)))['data']['attributes']['resourceData'];
-      let workRules = (await doWebRequest(SHIFT_WORKRULES(start, end)))['data']['attributes']['shifts'];
+      let schedule = (await doWebPost(BODY_SCHEDULE(start, end)))['data']['attributes']['resourceData'];
+      let activities = (await doWebGet("v1/activities"));
 
-      let mappedWorkRules = mapWorkRules(workRules);
+      let mappedActivities = mapActivities(activities);
 
       let shifts = [];
 
@@ -342,25 +384,17 @@ function displayData(vcb_data) {
         let name = resourceDetails['name']['first'] + ' ' + resourceDetails['name']['last'];
 
         // let draft = summarize(resource['draftSchedule']['events'], mappedWorkRules);
-        let published = summarize(resource['publishedSchedule']['events'], mappedWorkRules);
+        let published = summarize(resource['publishedSchedule']['events'], mappedActivities);
 
         for (let i = 0; i < published.length; i++) {
           let shift = published[i];
-
-          let role = '???'
-          let workRule = shift.workRule || '';
-          if (workRule.includes('ISS')) {
-            role = 'ISS';
-          } else if (workRule.includes('CS')) {
-            role = 'CS';
-          }
 
           shifts.push({
             name: name,
             start: shift.start,
             end: shift.end,
             duration: shift.duration,
-            role: role,
+            role: shift.role,
             isTimeOff: shift.isTimeOff,
             isDraftOnly: false
           });

@@ -118,7 +118,7 @@ function getStartEnd() {
         role = 'ISS';
       } else if (activityName.includes('CSPL')) {
         role = 'Pl.';
-      } else if (activityName.includes('CSPL')) {
+      } else if (activityName.includes('CS')) {
         role = 'CS';
       }
 
@@ -375,7 +375,7 @@ function displayData(vcb_data) {
       let schedule = (await doWebPost(BODY_SCHEDULE(start, end)))['data']['attributes']['resourceData'];
       let activities = (await doWebGet("v1/activities"));
 
-      let mappedActivities = mapActivities(activities);
+      let mappedActivities = mapActivities(activities['data']);
 
       let shifts = [];
 

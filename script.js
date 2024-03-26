@@ -272,7 +272,7 @@ function displayData(vcb_data) {
 
      let role_text = role === "CS" ? '' : `(${role})`;
 
-     li.innerHTML = `<b>${fmtTime(item.start)} to ${fmtTime(item.end)}</b>: ${item.name} ${role_text}`;
+     li.innerHTML = `<strong>${fmtTime(item.start)} to ${fmtTime(item.end)}</strong>: ${item.name} ${role_text}`;
      if (item.role === 'ISS') {
         li.style.color = 'darkred';
      }
